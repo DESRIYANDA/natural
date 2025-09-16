@@ -164,13 +164,11 @@ local function performAlwaysCatch()
 end
 
 -- Create Main Window
-local Window = Library.CreateLib("Auto Fisch - Mode Legit", "Ocean")
+local Window = Library.CreateLib("Auto Fisch", "Ocean")
 
--- Create Tab
 local AutoTab = Window:NewTab("Auto Cast")
 local AutoSection = AutoTab:NewSection("Auto Cast Settings")
 
--- Auto Cast Toggle
 AutoSection:NewToggle("Enable Auto Cast", "Aktifkan auto cast dengan timing random 1-3 detik", function(state)
     autoCast = state
     if state then
@@ -180,16 +178,13 @@ AutoSection:NewToggle("Enable Auto Cast", "Aktifkan auto cast dengan timing rand
     end
 end)
 
--- Auto Cast Delay Slider
 AutoSection:NewSlider("Cast Delay", "Delay antar cast dalam detik", 5, 1, function(value)
     autoCastDelay = value
     print("Cast Delay: " .. value .. " detik")
 end)
 
--- Auto Shake Section
 local ShakeSection = AutoTab:NewSection("Auto Shake Settings")
 
--- Auto Shake Toggle
 ShakeSection:NewToggle("Enable Auto Shake", "Aktifkan auto shake dengan klik random 1-3 detik", function(state)
     autoShake = state
     if state then
@@ -200,10 +195,8 @@ ShakeSection:NewToggle("Enable Auto Shake", "Aktifkan auto shake dengan klik ran
     end
 end)
 
--- Always Catch Section
 local CatchSection = AutoTab:NewSection("Always Catch Settings")
 
--- Always Catch Toggle
 CatchSection:NewToggle("Enable Always Catch", "Aktifkan always catch dengan random success rate", function(state)
     alwaysCatch = state
     if state then
@@ -213,7 +206,6 @@ CatchSection:NewToggle("Enable Always Catch", "Aktifkan always catch dengan rand
     end
 end)
 
--- Info Section
 local InfoSection = AutoTab:NewSection("Informasi")
 AutoSection:NewLabel("Auto Cast Mode Legit:")
 AutoSection:NewLabel("- Timing hold: 1-3 detik (random)")
@@ -228,7 +220,6 @@ AutoSection:NewLabel("- 30% success rate (true)")
 AutoSection:NewLabel("- 70% fail rate (false)")
 AutoSection:NewLabel("- Natural fishing simulation")
 
--- Loop Settings Section
 local LoopSection = Window:NewSection("🔄 Loop Settings")
 
 local LoopToggle = LoopSection:NewToggle("Enable Loop", "Automatically repeat fishing cycle", function(state)
@@ -241,7 +232,6 @@ LoopSection:NewLabel("- Auto repeats: Cast → Shake → Catch")
 LoopSection:NewLabel("- Random delay: 1-4 seconds")
 LoopSection:NewLabel("- Natural fishing simulation")
 
--- AFK Mode Section
 local AFKSection = Window:NewSection("😴 AFK Mode")
 
 local AFKToggle = AFKSection:NewToggle("Enable AFK Mode", "Simulate realistic breaks", function(state)
@@ -260,8 +250,6 @@ AFKSection:NewLabel("- Active time: 5-10 minutes")
 AFKSection:NewLabel("- Break time: 1-3 minutes")
 AFKSection:NewLabel("- Realistic player simulation")
 
--- Main Loop untuk Auto Cast
--- Main Loop untuk Auto Shake
 local lastShakeTime = 0
 RunService.Heartbeat:Connect(function()
     if autoShake then
@@ -322,7 +310,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Event listener untuk rod equipped/unequipped
 local function onCharacterChildAdded(child)
     if child:IsA("Tool") and child:FindFirstChild("events") and child.events:FindFirstChild("cast") and autoCast then
         wait(autoCastDelay)
@@ -337,14 +324,12 @@ local function onCharacterAdded(character)
     character.ChildAdded:Connect(onCharacterChildAdded)
 end
 
--- Connect events
 if getchar() then
     getchar().ChildAdded:Connect(onCharacterChildAdded)
 end
 
 LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
 
--- Event listener untuk Shake UI
 PlayerGui.ChildAdded:Connect(function(gui)
     if gui.Name == "shakeui" and autoShake then
         wait(0.1) -- Brief delay untuk memastikan UI fully loaded
