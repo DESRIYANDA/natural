@@ -1,8 +1,19 @@
 -- Auto Fisch Script dengan Kavo UI
 -- Fitur: Auto Cast Mode Legit dengan timing random
 
--- Load Kavo UI Library
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+-- Load Kavo UI Library from our repository
+local Library
+local success, result = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/DESRIYANDA/natural/main/kavo.lua"))()
+end)
+
+if success then
+    Library = result
+    print("✅ Kavo UI Library loaded successfully from our repository!")
+else
+    warn("❌ Failed to load Kavo UI Library. Error: " .. tostring(result))
+    return
+end
 
 -- Services
 local Players = game:GetService("Players")
