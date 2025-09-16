@@ -28,6 +28,12 @@ local afkDuration = 0
 local nextAFKTime = 0
 
 -- Helper Functions
+local function FindChild(parent, child)
+    if parent then
+        return parent:FindFirstChild(child)
+    end
+    return nil
+end
 local function getchar()
     return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 end
@@ -255,13 +261,14 @@ AFKSection:NewLabel("- Realistic player simulation")
 local lastShakeTime = 0
 RunService.Heartbeat:Connect(function()
     if autoShake then
-        local shakeui = PlayerGui:FindFirstChild("shakeui")
-        if shakeui and shakeui:FindFirstChild("safezone") and shakeui.safezone:FindFirstChild("button") then
+        local shakeui = FindChild(PlayerGui, "shakeui")
+        local safezone = FindChild(shakeui, "safezone")
+        local button = FindChild(safezone, "button")
+        if shakeui and safezone and button then
             local currentTime = tick()
             if currentTime - lastShakeTime >= math.random(1,3) then
-                -- Trigger shake
-                GuiService.SelectedObject = shakeui.safezone.button
-                if GuiService.SelectedObject == shakeui.safezone.button then
+                GuiService.SelectedObject = button
+                if GuiService.SelectedObject == button then
                     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                 end
