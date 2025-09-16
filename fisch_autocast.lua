@@ -261,22 +261,42 @@ AFKSection:NewLabel("- Break time: 1-3 minutes")
 AFKSection:NewLabel("- Realistic player simulation")
 
 -- Main Loop untuk Auto Cast
+-- Main Loop untuk Auto Shake
+local lastShakeTime = 0
+RunService.Heartbeat:Connect(function()
+    if autoShake then
+        local shakeui = PlayerGui:FindFirstChild("shakeui")
+        if shakeui and shakeui:FindFirstChild("safezone") and shakeui.safezone:FindFirstChild("button") then
+            local currentTime = tick()
+            if currentTime - lastShakeTime >= math.random(1,3) then
+                -- Trigger shake
+                GuiService.SelectedObject = shakeui.safezone.button
+                if GuiService.SelectedObject == shakeui.safezone.button then
+                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                end
+                lastShakeTime = currentTime
+            end
+        end
+    end
+end)
 local lastCastTime = 0
+local lastRodEquipped = nil
 
 RunService.Heartbeat:Connect(function()
     -- Cek AFK mode terlebih dahulu
     if checkAFKMode() then return end
-    
     if not autoCast then return end
-    
+
     local currentTime = tick()
-    if currentTime - lastCastTime >= autoCastDelay then
-        local rod = FindRod()
-        if rod then
-            -- Cek apakah rod ready untuk cast (tidak sedang casting)
+    local rod = FindRod()
+    if rod then
+        -- Cek apakah rod baru saja di-equip
+        if lastRodEquipped ~= rod then
+            lastRodEquipped = rod
+            -- Cast langsung saat rod di-equip dan autoCast aktif
             if rod.values and rod.values:FindFirstChild("lure") then
                 local lureValue = rod.values.lure.Value
-                -- Jika lure value rendah, artinya tidak sedang memancing
                 if lureValue <= 0.001 then
                     spawn(function()
                         performAutoCast()
@@ -285,6 +305,20 @@ RunService.Heartbeat:Connect(function()
                 end
             end
         end
+        -- Cek interval autoCast seperti biasa
+        if currentTime - lastCastTime >= autoCastDelay then
+            if rod.values and rod.values:FindFirstChild("lure") then
+                local lureValue = rod.values.lure.Value
+                if lureValue <= 0.001 then
+                    spawn(function()
+                        performAutoCast()
+                    end)
+                    lastCastTime = currentTime
+                end
+            end
+        end
+    else
+        lastRodEquipped = nil
     end
 end)
 
@@ -316,8 +350,12 @@ PlayerGui.ChildAdded:Connect(function(gui)
         wait(0.1) -- Brief delay untuk memastikan UI fully loaded
         performAutoShake()
     elseif gui.Name == "reel" and alwaysCatch then
-        wait(0.5) -- Delay sedikit sebelum auto reel
-        performAlwaysCatch()
+        -- Natural always catch: random delay, random perfect catch
+        spawn(function()
+            local minigameDelay = math.random(50, 150) / 100 -- 0.5-1.5 detik
+            wait(minigameDelay)
+            performAlwaysCatch()
+        end)
     end
 end)
 
