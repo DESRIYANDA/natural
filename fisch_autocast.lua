@@ -9,6 +9,7 @@ local Players = game:GetService("Players")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
@@ -166,6 +167,85 @@ end
 -- Create Main Window
 local Window = Library.CreateLib("Auto Fisch - Mode Legit", "Ocean")
 
+-- UI Visibility Variables
+local UIVisible = true
+local FloatingButton = nil
+
+-- Function to create floating button
+local function createFloatingButton()
+    if FloatingButton then FloatingButton:Destroy() end
+    
+    FloatingButton = Instance.new("ScreenGui")
+    FloatingButton.Name = "AutoFischFloat"
+    FloatingButton.Parent = PlayerGui
+    FloatingButton.ResetOnSpawn = false
+    
+    local Button = Instance.new("TextButton")
+    Button.Name = "FloatButton"
+    Button.Parent = FloatingButton
+    Button.Size = UDim2.new(0, 100, 0, 50)
+    Button.Position = UDim2.new(0, 20, 0, 100)
+    Button.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
+    Button.BorderSizePixel = 0
+    Button.Text = "🎣 Show UI"
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextScaled = true
+    Button.Font = Enum.Font.GothamBold
+    
+    -- Make button rounded
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 10)
+    Corner.Parent = Button
+    
+    -- Make button draggable
+    local dragging = false
+    local dragStart = nil
+    local startPos = nil
+    
+    Button.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = Button.Position
+        end
+    end)
+    
+    Button.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            Button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    
+    Button.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    -- Button click to show UI
+    Button.MouseButton1Click:Connect(function()
+        if not dragging then
+            UIVisible = true
+            Library:ToggleUI()
+            FloatingButton.Enabled = false
+        end
+    end)
+end
+
+-- Function to toggle UI visibility
+local function toggleUI()
+    UIVisible = not UIVisible
+    if UIVisible then
+        Library:ToggleUI()
+        if FloatingButton then FloatingButton.Enabled = false end
+    else
+        Library:ToggleUI()
+        createFloatingButton()
+        FloatingButton.Enabled = true
+    end
+end
+
 -- Create Tab
 local AutoTab = Window:NewTab("Auto Cast")
 local AutoSection = AutoTab:NewSection("Auto Cast Settings")
@@ -215,18 +295,9 @@ end)
 
 -- Info Section
 local InfoSection = AutoTab:NewSection("Informasi")
-AutoSection:NewLabel("Auto Cast Mode Legit:")
-AutoSection:NewLabel("- Timing hold: 1-3 detik (random)")
-AutoSection:NewLabel("- Safe & Natural casting simulation")
-AutoSection:NewLabel("")
-AutoSection:NewLabel("Auto Shake Mode Legit:")
-AutoSection:NewLabel("- Timing klik: 1-3 detik (random)")
-AutoSection:NewLabel("- Otomatis klik button shake")
-AutoSection:NewLabel("")
-AutoSection:NewLabel("Always Catch Mode Legit:")
-AutoSection:NewLabel("- 30% success rate (true)")
-AutoSection:NewLabel("- 70% fail rate (false)")
-AutoSection:NewLabel("- Natural fishing simulation")
+end)
+
+-- Loop Settings Section
 
 -- Loop Settings Section
 local LoopSection = Window:NewSection("🔄 Loop Settings")
@@ -235,11 +306,6 @@ local LoopToggle = LoopSection:NewToggle("Enable Loop", "Automatically repeat fi
     enableLoop = state
     print("Loop mode: " .. (enableLoop and "Enabled" or "Disabled"))
 end)
-
-LoopSection:NewLabel("Loop Settings:")
-LoopSection:NewLabel("- Auto repeats: Cast → Shake → Catch")
-LoopSection:NewLabel("- Random delay: 1-4 seconds")
-LoopSection:NewLabel("- Natural fishing simulation")
 
 -- AFK Mode Section
 local AFKSection = Window:NewSection("😴 AFK Mode")
@@ -255,10 +321,13 @@ local AFKToggle = AFKSection:NewToggle("Enable AFK Mode", "Simulate realistic br
     end
 end)
 
-AFKSection:NewLabel("AFK Mode Settings:")
-AFKSection:NewLabel("- Active time: 5-10 minutes")
-AFKSection:NewLabel("- Break time: 1-3 minutes")
-AFKSection:NewLabel("- Realistic player simulation")
+-- UI Controls Section
+local UISection = Window:NewSection("🎛️ UI Controls")
+
+UISection:NewButton("Minimize to Floating Button", "Hide UI and show floating button", function()
+    toggleUI()
+    print("UI minimized to floating button")
+end)
 
 -- Main Loop untuk Auto Cast
 local lastCastTime = 0
@@ -318,6 +387,15 @@ PlayerGui.ChildAdded:Connect(function(gui)
     elseif gui.Name == "reel" and alwaysCatch then
         wait(0.5) -- Delay sedikit sebelum auto reel
         performAlwaysCatch()
+    end
+end)
+
+-- Keybind untuk toggle UI (Right Ctrl)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.RightControl then
+        toggleUI()
+        print("UI toggled with Right Ctrl")
     end
 end)
 
