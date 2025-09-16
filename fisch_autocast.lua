@@ -220,7 +220,8 @@ AutoSection:NewLabel("- 30% success rate (true)")
 AutoSection:NewLabel("- 70% fail rate (false)")
 AutoSection:NewLabel("- Natural fishing simulation")
 
-local LoopSection = Window:NewSection("🔄 Loop Settings")
+local LoopTab = Window:NewTab("Loop Settings")
+local LoopSection = LoopTab:NewSection("🔄 Loop Settings")
 
 local LoopToggle = LoopSection:NewToggle("Enable Loop", "Automatically repeat fishing cycle", function(state)
     enableLoop = state
@@ -232,7 +233,8 @@ LoopSection:NewLabel("- Auto repeats: Cast → Shake → Catch")
 LoopSection:NewLabel("- Random delay: 1-4 seconds")
 LoopSection:NewLabel("- Natural fishing simulation")
 
-local AFKSection = Window:NewSection("😴 AFK Mode")
+local AFKTab = Window:NewTab("AFK Mode")
+local AFKSection = AFKTab:NewSection("😴 AFK Mode")
 
 local AFKToggle = AFKSection:NewToggle("Enable AFK Mode", "Simulate realistic breaks", function(state)
     enableAFK = state
